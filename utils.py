@@ -42,7 +42,6 @@ def construct_graph(G,edges_w):
 
 def initialize_graph(G):
     node_label = G.nodes
-    np.random.seed(1)
     private_op = np.random.random(len(node_label))*2-1
     i = 0
     for node in node_label:
@@ -55,10 +54,54 @@ def initialize_graph(G):
         i+=1
     return G
 
+def initialize_graph_with_new(G):
+    node_label = G.nodes
+    i = 0
+    for node in node_label:
+        G.nodes[node]['private_op'] = -1
+        G.nodes[node]['old_private_op'] = -1
+        G.nodes[node]['public_op'] = 0
+        G.nodes[node]['decision'] =0
+        G.nodes[node]['old_public_op'] = 0
+        G.nodes[node]['old_decision'] = 0
+        i+=1
+    innovator = node_label[random.randint(0,len(node_label)-1)]
+    G.nodes[innovator]['private_op'] = 1
+    G.nodes[innovator]['old_private_op'] = 1
+    return G
+
 def evole(args):
     graph2,p,alpha,beta,gamma,tau,lmd,rho,round_num = args
     graph = graph2.copy()
     initialize_graph(graph)
+    update_decision(graph,lmd,rho,tau,True)
+    roll(graph)
+    t = 1
+    while t<round_num:
+        update_public_op(graph, p)
+        update_private_op(graph,alpha,beta,gamma)
+        update_decision(graph, lmd,rho,tau)
+        roll(graph)
+        t+=1
+    t= 0
+    results = []
+    while t<1000:
+        update_public_op(graph, p)
+        update_private_op(graph, alpha, beta, gamma)
+        update_decision(graph, lmd, rho, tau)
+        roll(graph)
+        t += 1
+        re = statistic(graph)
+        results.append(re)
+    a = sum([x[0] for x in results])/len(results)
+    b = sum([x[1] for x in results])/len(results)
+    c = sum([x[2] for x in results])/len(results)
+    return [a,b,c]
+
+def innovation_evolve(args):
+    graph2,p,alpha,beta,gamma,tau,lmd,rho,round_num = args
+    graph = graph2.copy()
+    initialize_graph_with_new(graph)
     update_decision(graph,lmd,rho,tau,True)
     roll(graph)
     t = 1
