@@ -24,7 +24,7 @@ for lam in tqdm.tqdm(range(0,11,2),desc="a:"):
             # graph2, p, alpha, beta, gamma, tau, lmd, b, c, round_num,t0
             time += 1
         pool = Pool(processes=10)
-        result = pool.map(evole, args)
+        result = pool.map(deceiver_evolve, args)
         private_op = [r0[0] for r0 in result]
         public_op = [r0[1] for r0 in result]
         fitness = [r0[2] for r0 in result]
